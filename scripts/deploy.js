@@ -1,30 +1,40 @@
-// We require the Hardhat Runtime Environment explicitly here. This is optional
-// but useful for running the script in a standalone fashion through `node <script>`.
-//
-// When running the script with `npx hardhat run <script>` you'll find the Hardhat
-// Runtime Environment's members available in the global scope.
-const hre = require("hardhat");
+const { expect } = require("chai");
 
-async function main() {
-  // Hardhat always runs the compile task when running scripts with its command
-  // line interface.
-  //
-  // If this script is run directly using `node` you may want to call compile
-  // manually to make sure everything is compiled
-  // await hre.run('compile');
+const main = async () => {
+  this.baseTokenURI = "ipfs://QmTFLWHBq6jvs1LX7Zg1sS8GNtmHFnTE2DSxMs2giDqPCe/";
+  const nftContractFactory = await hre.ethers.getContractFactory('MegansDolls');
+  const nftContract = await nftContractFactory.deploy(this.baseTokenURI);
+  const [deployer] = await hre.ethers.getSigners();
+  await nftContract.deployed();
+  console.log("Contract deployed to:", nftContract.address);
+  console.log("deployer address", deployer.address);
 
-  // We get the contract to deploy
-  const Greeter = await hre.ethers.getContractFactory("Greeter");
-  const greeter = await Greeter.deploy("Hello, Hardhat!");
+  // Call the function.
+  let txn = await nftContract.ownerMint(2, deployer.address)
+  // Wait for it to be mined.
+  await txn.wait()
+  console.log("Minted NFT #1 & #2")
 
-  await greeter.deployed();
+  txn = await nftContract.ownerMint(2, deployer.address)
+  // Wait for it to be mined.
+  await txn.wait()
+  console.log("Minted NFT #3 & #4")
+  for (let tokenId = 0; tokenId < 4; tokenId++) {
+    const exists = await nftContract.exists(0);
+    expect(exists).to.be.true;
+    const tokenURI = await nftContract.tokenURI(tokenId)
+    console.log(`NFT #${tokenId} TokenURI: ${tokenURI}`)
+  };
+};
 
-  console.log("Greeter deployed to:", greeter.address);
-}
+const runMain = async () => {
+  try {
+    await main();
+    process.exit(0);
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
+};
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+runMain();
