@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 // Contract by METACANNY.eth (@METACANNY)
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "./ERC721A.sol";
 
 contract MegansDolls is Ownable, ERC721A, ReentrancyGuard {
@@ -107,6 +108,13 @@ contract MegansDolls is Ownable, ERC721A, ReentrancyGuard {
 
 	function setBaseURI(string calldata baseURI) external onlyOwner {
 		_baseTokenURI = baseURI;
+	}
+
+	function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+		if (!_exists(tokenId)) revert URIQueryForNonexistentToken();
+
+        string memory baseURI = _baseURI();
+        return bytes(baseURI).length != 0 ? string(abi.encodePacked(baseURI, Strings.toString(tokenId), ".json")) : '';
 	}
 
 	function withdrawMoney() external onlyOwner nonReentrant {
