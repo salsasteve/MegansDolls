@@ -21,8 +21,8 @@ describe('MegansDolls', function () {
 
     it('All Constant parameters are properly set', async function () {
       expect(await this.megansdolls.price()).to.be.equal(ethers.utils.parseEther("0.04"));
-      expect(await this.megansdolls.collectionSize()).to.be.equal(8888);
-      expect(await this.megansdolls.reserves()).to.be.equal(100);
+      expect(await this.megansdolls.collectionSize()).to.be.equal(539);
+      expect(await this.megansdolls.reserves()).to.be.equal(3);
       expect(await this.megansdolls.maxBatchSize()).to.be.equal(5);
       expect(await this.megansdolls.saleState()).to.be.equal(0);
     });
@@ -54,7 +54,7 @@ describe('MegansDolls', function () {
 
       it('owner mints for free', async function () {
         await this.megansdolls.connect(this.owner).ownerMint(5, this.addr1.address);
-        const numOfMints = await this.megansdolls.numberMinted(this.addr1.address)
+        const numOfMints = await this.megansdolls.numberMinted(this.addr1.address);
         expect(numOfMints).to.be.equal(5)
       });
     });
@@ -198,6 +198,28 @@ describe('MegansDolls', function () {
       await this.megansdolls.setSaleState(2);
       await this.megansdolls.connect(this.addr1).publicSaleMint(quantity, {value: amount});
       expect(await this.megansdolls.numberMinted(this.addr1.address)).to.be.equal(3)
+    });
+
+    it('Owner mints all tokens', async function () {
+      const quantity = 539;
+      await this.megansdolls.setSaleState(2);
+      // expect(await this.megansdolls.numberMinted(this.addr1.address)).to.be.equal(3)
+      for (let tokenId = 0; tokenId < quantity; tokenId++) {
+        await this.megansdolls.connect(this.owner).ownerMint(1, this.owner.address);
+        let exists = await this.megansdolls.exists(tokenId);
+        expect(exists).to.be.true;
+        let testURI = this.baseTokenURI + tokenId.toString() + ".json";
+        expect(await this.megansdolls.tokenURI(tokenId)).to.be.equal(testURI)
+      };
+      // const tx = await this.megansdolls.connect(this.owner).ownerMint;
+      // expect(tx(1, this.owner.address)).to.be.revertedWith("Exceeds max supply.");
+      const numOfMints = await this.megansdolls.numberMinted(this.owner.address);
+      expect(numOfMints).to.be.equal(539)
+      const totalSupply = await this.megansdolls.totalSupply()
+      expect(totalSupply).to.be.equal(539)
+      
+      const tx = await this.megansdolls.connect(this.owner).ownerMint;
+      expect(tx(1, this.owner.address)).to.be.revertedWith("Exceeds max supply.");
     });
     
 

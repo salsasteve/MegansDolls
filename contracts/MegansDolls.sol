@@ -13,8 +13,8 @@ import "./ERC721A.sol";
 contract MegansDolls is Ownable, ERC721A, ReentrancyGuard {
 	string _baseTokenURI;
 	uint256 public price = 0.04 ether;
-	uint256 public immutable collectionSize = 8888;
-	uint256 public immutable reserves = 100;
+	uint256 public immutable collectionSize = 539;
+	uint256 public immutable reserves = 3;
 	uint256 public immutable maxBatchSize = 5;
 	uint256 public saleState = 0;
 
@@ -36,7 +36,7 @@ contract MegansDolls is Ownable, ERC721A, ReentrancyGuard {
 		bytes32[] calldata proof
 	) public payable callerIsUser {
 		require(saleState > 0, "Presale must be active to mint.");
-    require(totalSupply() + quantity <= collectionSize - reserves, "Exceeds max supply.");
+        require(totalSupply() + quantity <= collectionSize - reserves, "Exceeds max supply.");
 		require(
 			_verify(_leaf(_msgSender(), allowance), proof),
 			"Invalid Merkle Tree proof supplied."
