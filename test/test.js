@@ -93,7 +93,7 @@ describe('MegansDolls', function () {
       it("verifies tokens URI's", async function () {
         for (let tokenId = 0; tokenId < 6; tokenId++) {
           const tokenURI = await this.megansdolls.tokenURI(tokenId)
-          expect(tokenURI).to.be.equal(this.baseTokenURI + tokenId.toString());
+          expect(tokenURI).to.be.equal(this.baseTokenURI + tokenId.toString() + ".json");
         }
       });
     });
@@ -176,7 +176,7 @@ describe('MegansDolls', function () {
       for (let tokenId = 0; tokenId < allowance; tokenId++) {
         let exists = await this.megansdolls.exists(tokenId);
         expect(exists).to.be.true;
-        let test0URI = this.baseTokenURI + tokenId.toString();
+        let test0URI = this.baseTokenURI + tokenId.toString() + ".json";
         expect(await this.megansdolls.tokenURI(tokenId)).to.be.equal(test0URI)
       };
     });
